@@ -3,7 +3,7 @@ import { Stack, Typography, IconButton } from "@mui/material";
 import { Split } from "./types";
 import { colors } from "./theme";
 import { formatDuration } from "./utils";
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import TimeDisplay from './TimeDisplay';
 
@@ -75,7 +75,7 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) =>
             }
           }}
         >
-          <CheckCircleOutlineIcon />
+          <CheckIcon />
         </IconButton>
         <IconButton
           onClick={onAbandon}

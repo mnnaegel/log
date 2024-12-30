@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { Split, SplitState } from "./types";
 import { colors } from "./theme";
-import { formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff } from "./utils";
+import { formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff, formatDateTime } from "./utils";
 
 type CompletedSplitsProps = {
   splits: Split[];
@@ -28,8 +28,8 @@ const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
   );
   
   return (
-    <TableContainer sx={{ maxHeight: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
-      <Table size="small" sx={{ maxWidth: '900px', margin: '0 auto' }}>
+    <TableContainer sx={{ height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
+      <Table size="small" sx={{ maxWidth: '1000px', margin: '0 auto' }}>
         <TableHead>
           <TableRow>
             <BaseCell>
@@ -45,6 +45,11 @@ const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
             <BaseCell align="right">
               <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
                 ESTIMATE
+              </Typography>
+            </BaseCell>
+            <BaseCell align="right">
+              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
+                STARTED
               </Typography>
             </BaseCell>
             <BaseCell align="right">
@@ -95,6 +100,18 @@ const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
                     }}
                   >
                     {formatDuration(estimateMs)}
+                  </Typography>
+                </BaseCell>
+                <BaseCell align="right">
+                  <Typography
+                    fontFamily="monospace"
+                    sx={{
+                      color: colors.gray,
+                      opacity: 0.7,
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    {formatDateTime(split.startTime)}
                   </Typography>
                 </BaseCell>
                 <BaseCell align="right">
