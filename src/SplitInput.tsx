@@ -1,5 +1,4 @@
-// SplitInput.tsx
-import { useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import { Stack, TextField } from "@mui/material";
 import { colors } from "./theme";
 
@@ -9,6 +8,11 @@ type SplitInputProps = {
 
 const SplitInput = ({ onCreateSplit }: SplitInputProps) => {
   const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && inputValue.trim()) {
@@ -25,12 +29,14 @@ const SplitInput = ({ onCreateSplit }: SplitInputProps) => {
         onChange={(e) => setInputValue(e.target.value)}
         onKeyPress={handleKeyPress}
         variant="standard"
+        inputRef={inputRef}
         sx={{
           maxWidth: '600px',
           '& .MuiInput-input': {
             color: colors.gray,
             fontSize: '2rem',
-            textAlign: 'center',
+            textAlign: 'left',
+            marginLeft: '2rem',
             caretColor: colors.gray,
           },
           '& .MuiInput-underline:before': {
