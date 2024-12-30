@@ -18,7 +18,7 @@ const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
   }
   
   return (
-    <Stack spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
+   <Stack spacing={2} sx={{ width: '100%', maxWidth: '700px', height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
       {splits.map((split) => (
         <Stack
           key={split.id}

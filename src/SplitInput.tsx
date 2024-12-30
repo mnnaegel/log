@@ -36,7 +36,7 @@ const SplitInput = ({ onCreateSplit }: SplitInputProps) => {
             color: colors.gray,
             fontSize: '2rem',
             textAlign: 'left',
-            marginLeft: '2rem',
+            marginX: '2rem',
             caretColor: colors.gray,
           },
           '& .MuiInput-underline:before': {

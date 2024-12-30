@@ -31,7 +31,7 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) =>
       alignItems="center"
     >
       <Stack 
-        direction="row" 
+        direction="column"
         spacing={2} 
         alignItems="center"
       >
@@ -41,37 +41,14 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) =>
             color: colors.yellow,
             fontWeight: 400,
             letterSpacing: '0.05em',
-            textAlign: 'center'
+            textAlign: 'center',
+            textDecoration: 'underline'
           }}
         >
           {currentSplit.name}
         </Typography>
-        <Stack direction="row" spacing={1}>
-          <IconButton 
-            onClick={onComplete}
-            sx={{ 
-              color: colors.gray,
-              '&:hover': {
-                color: colors.yellow
-              }
-            }}
-          >
-            <CheckCircleOutlineIcon />
-          </IconButton>
-          <IconButton 
-            onClick={onAbandon}
-            sx={{ 
-              color: colors.gray,
-              '&:hover': {
-                color: colors.softRed
-              }
-            }}
-          >
-            <ClearIcon />
-          </IconButton>
-        </Stack>
       </Stack>
-      
+
       <Typography 
         variant="h1" 
         fontFamily="monospace"
@@ -83,6 +60,31 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) =>
       >
         {formatDuration(elapsedTime)}
       </Typography>
+
+      <Stack direction="row" spacing={1}>
+        <IconButton
+          onClick={onComplete}
+          sx={{
+            color: colors.gray,
+            '&:hover': {
+              color: colors.yellow
+            }
+          }}
+        >
+          <CheckCircleOutlineIcon />
+        </IconButton>
+        <IconButton
+          onClick={onAbandon}
+          sx={{
+            color: colors.gray,
+            '&:hover': {
+              color: colors.softRed
+            }
+          }}
+        >
+          <ClearIcon />
+        </IconButton>
+      </Stack>
     </Stack>
   );
 };

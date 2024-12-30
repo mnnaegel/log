@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Stack } from "@mui/material";
+import {Box, Stack} from "@mui/material";
 import SplitTimer from './SplitTimer';
 import SplitInput from './SplitInput';
 import CompletedSplits from './CompletedSplits';
@@ -48,6 +48,7 @@ function App() {
       height="100%" 
       alignItems="center"
       spacing={6}
+      justifyContent="space-between"
     >
       <Box p={4}>
         {currentSplit ? (
@@ -60,7 +61,10 @@ function App() {
           <SplitInput onCreateSplit={handleCreateSplit} />
         )}
       </Box>
-      <CompletedSplits splits={completedSplits} />
+
+      <Stack width="100%" pb={8} alignItems="center">
+        <CompletedSplits splits={completedSplits} />
+      </Stack>
     </Stack>
   );
 }
