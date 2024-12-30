@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import {Box, Stack} from "@mui/material";
 import SplitTimer from './SplitTimer';
-import SplitInput from './SplitInput';
 import CompletedSplits from './CompletedSplits';
 import { Split, SplitState } from "./types";
+import SplitInput from "./SplitInput.tsx";
 
 function App() {
   const [currentSplit, setCurrentSplit] = useState<Split | null>(null);
   const [completedSplits, setCompletedSplits] = useState<Split[]>([]);
 
-  const handleCreateSplit = (name: string) => {
+  const handleCreateSplit = (name: string, estimatedMinutes: number) => {
     setCurrentSplit({
       id: Date.now().toString(),
       name,
       startTime: Date.now(),
+      pessimisticEstimate: estimatedMinutes,
       state: SplitState.IN_PROGRESS
     });
   };

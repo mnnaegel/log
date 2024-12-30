@@ -12,6 +12,16 @@ export const formatElapsedTime = (start: number, end: number): string => {
   return formatDuration(end - start);
 };
 
+export const minutesToMs = (minutes: number): number => {
+  return minutes * 60 * 1000;
+};
+
+export const formatTimeDiff = (actualMs: number, estimateMs: number): string => {
+  const diff = actualMs - estimateMs;
+  const prefix = diff >= 0 ? '+' : '-';
+  return prefix + formatDuration(Math.abs(diff));
+};
+
 export const formatDateTime = (timestamp: number): string => {
   return new Date(timestamp).toLocaleTimeString('en-US', {
     hour: 'numeric',

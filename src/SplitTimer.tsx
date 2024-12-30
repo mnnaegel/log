@@ -5,6 +5,7 @@ import { colors } from "./theme";
 import { formatDuration } from "./utils";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ClearIcon from '@mui/icons-material/Clear';
+import TimeDisplay from './TimeDisplay';
 
 type SplitTimerProps = {
   currentSplit: Split;
@@ -24,6 +25,14 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) =>
 
     return () => clearInterval(timer);
   }, [currentSplit]);
+
+  const getTimeColor = () => {
+    const elapsedMinutes = elapsedTime / (1000 * 60);
+    if (elapsedMinutes > currentSplit.pessimisticEstimate) {
+      return colors.softRed;
+    }
+    return colors.gray;
+  };
 
   return (
     <Stack 
@@ -49,17 +58,12 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) =>
         </Typography>
       </Stack>
 
-      <Typography 
-        variant="h1" 
-        fontFamily="monospace"
-        sx={{ 
-          color: colors.gray,
-          fontWeight: 300,
-          letterSpacing: '0.1em'
-        }}
-      >
-        {formatDuration(elapsedTime)}
-      </Typography>
+      <TimeDisplay
+        time={formatDuration(elapsedTime)}
+        estimate={currentSplit.pessimisticEstimate}
+        color={getTimeColor()}
+        size="large"
+      />
 
       <Stack direction="row" spacing={1}>
         <IconButton

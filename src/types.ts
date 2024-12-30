@@ -3,6 +3,7 @@ export type Split = {
   name: string;
   startTime: number;
   endTime?: number;
+  pessimisticEstimate: number;
   state: SplitState;
 };
 
