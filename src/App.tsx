@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import {Box, Stack} from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import SplitTimer from './SplitTimer';
 import CompletedSplits from './CompletedSplits';
 import { Split, SplitState } from "./types";
-import SplitInput from "./SplitInput.tsx";
+import SplitInput from "./SplitInput";
 
 function App() {
   const [currentSplit, setCurrentSplit] = useState<Split | null>(null);
@@ -17,6 +17,25 @@ function App() {
       pessimisticEstimate: estimatedMinutes,
       state: SplitState.IN_PROGRESS
     });
+  };
+
+  const handleUpdateCurrentSplitName = (newName: string) => {
+    if (currentSplit) {
+      setCurrentSplit({
+        ...currentSplit,
+        name: newName
+      });
+    }
+  };
+
+  const handleUpdateCompletedSplitName = (splitId: string, newName: string) => {
+    setCompletedSplits(splits =>
+      splits.map(split =>
+        split.id === splitId
+          ? { ...split, name: newName }
+          : split
+      )
+    );
   };
 
   const handleCompleteSplit = () => {
@@ -57,6 +76,7 @@ function App() {
             currentSplit={currentSplit} 
             onComplete={handleCompleteSplit}
             onAbandon={handleAbandonSplit}
+            onUpdateName={handleUpdateCurrentSplitName}
           />
         ) : (
           <SplitInput onCreateSplit={handleCreateSplit} />
@@ -64,7 +84,10 @@ function App() {
       </Box>
 
       <Stack width="100%" pb={8} alignItems="center">
-        <CompletedSplits splits={completedSplits} />
+        <CompletedSplits 
+          splits={completedSplits} 
+          onUpdateName={handleUpdateCompletedSplitName}
+        />
       </Stack>
     </Stack>
   );

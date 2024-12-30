@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Stack, Typography, IconButton } from "@mui/material";
+import { Stack, IconButton } from "@mui/material";
 import { Split } from "./types";
 import { colors } from "./theme";
 import { formatDuration } from "./utils";
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import TimeDisplay from './TimeDisplay';
+import EditableText from './EditableText';
 
 type SplitTimerProps = {
   currentSplit: Split;
   onComplete: () => void;
   onAbandon: () => void;
+  onUpdateName: (newName: string) => void;
 };
 
-const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) => {
+const SplitTimer = ({ currentSplit, onComplete, onAbandon, onUpdateName }: SplitTimerProps) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
 
   useEffect(() => {
@@ -44,18 +46,11 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) =>
         spacing={2} 
         alignItems="center"
       >
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            color: colors.yellow,
-            fontWeight: 400,
-            letterSpacing: '0.05em',
-            textAlign: 'center',
-            textDecoration: 'underline'
-          }}
-        >
-          {currentSplit.name}
-        </Typography>
+        <EditableText
+          value={currentSplit.name}
+          onChange={onUpdateName}
+          variant="h4"
+        />
       </Stack>
 
       <TimeDisplay

@@ -2,12 +2,14 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typog
 import { Split, SplitState } from "./types";
 import { colors } from "./theme";
 import { formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff, formatDateTime } from "./utils";
+import EditableText from './EditableText';
 
 type CompletedSplitsProps = {
   splits: Split[];
+  onUpdateName: (splitId: string, newName: string) => void;
 };
 
-const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
+const CompletedSplits = ({ splits, onUpdateName }: CompletedSplitsProps) => {
   const getTimeColor = (split: Split) => {
     if (split.state === SplitState.ABANDONED) return colors.softRed;
     const actualMs = split.endTime! - split.startTime;
@@ -68,16 +70,11 @@ const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
             return (
               <TableRow key={split.id}>
                 <BaseCell>
-                  <Typography
-                    sx={{
-                      color: colors.yellow,
-                      fontWeight: 300,
-                      letterSpacing: '0.05em',
-                      textDecoration: split.state === SplitState.ABANDONED ? 'line-through' : 'none'
-                    }}
-                  >
-                    {split.name}
-                  </Typography>
+                  <EditableText
+                    value={split.name}
+                    onChange={(newName) => onUpdateName(split.id, newName)}
+                    isStrikethrough={split.state === SplitState.ABANDONED}
+                  />
                 </BaseCell>
                 <BaseCell align="right">
                   <Typography
