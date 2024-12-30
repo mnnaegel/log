@@ -1,17 +1,18 @@
-// SplitTimer.tsx
 import { useState, useEffect } from 'react';
 import { Stack, Typography, IconButton } from "@mui/material";
 import { Split } from "./types";
 import { colors } from "./theme";
 import { formatDuration } from "./utils";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ClearIcon from '@mui/icons-material/Clear';
 
 type SplitTimerProps = {
   currentSplit: Split;
   onComplete: () => void;
+  onAbandon: () => void;
 };
 
-const SplitTimer = ({ currentSplit, onComplete }: SplitTimerProps) => {
+const SplitTimer = ({ currentSplit, onComplete, onAbandon }: SplitTimerProps) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
 
   useEffect(() => {
@@ -45,17 +46,30 @@ const SplitTimer = ({ currentSplit, onComplete }: SplitTimerProps) => {
         >
           {currentSplit.name}
         </Typography>
-        <IconButton 
-          onClick={onComplete}
-          sx={{ 
-            color: colors.gray,
-            '&:hover': {
-              color: colors.yellow
-            }
-          }}
-        >
-          <CheckCircleOutlineIcon />
-        </IconButton>
+        <Stack direction="row" spacing={1}>
+          <IconButton 
+            onClick={onComplete}
+            sx={{ 
+              color: colors.gray,
+              '&:hover': {
+                color: colors.yellow
+              }
+            }}
+          >
+            <CheckCircleOutlineIcon />
+          </IconButton>
+          <IconButton 
+            onClick={onAbandon}
+            sx={{ 
+              color: colors.gray,
+              '&:hover': {
+                color: colors.softRed
+              }
+            }}
+          >
+            <ClearIcon />
+          </IconButton>
+        </Stack>
       </Stack>
       
       <Typography 

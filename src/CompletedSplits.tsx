@@ -1,6 +1,5 @@
-// CompletedSplits.tsx
-import { Stack, Typography } from "@mui/material";
-import {Split} from "./types.ts";
+import {Stack, Typography} from "@mui/material";
+import {Split, SplitState} from "./types.ts";
 import {colors} from "./theme.ts";
 import {formatElapsedTime} from "./utils.ts";
 
@@ -9,6 +8,15 @@ type CompletedSplitsProps = {
 };
 
 const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
+  const getTimeColor = (state: SplitState) => {
+    switch (state) {
+      case SplitState.ABANDONED:
+        return colors.softRed;
+      default:
+        return colors.gray;
+    }
+  }
+  
   return (
     <Stack spacing={2} sx={{ width: '100%', maxWidth: '600px' }}>
       {splits.map((split) => (
@@ -29,7 +37,8 @@ const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
             sx={{
               color: colors.yellow,
               fontWeight: 300,
-              letterSpacing: '0.05em'
+              letterSpacing: '0.05em',
+              textDecoration: split.state === SplitState.ABANDONED ? 'line-through' : 'none'
             }}
           >
             {split.name}
@@ -37,7 +46,7 @@ const CompletedSplits = ({ splits }: CompletedSplitsProps) => {
           <Typography
             fontFamily="monospace"
             sx={{
-              color: colors.gray,
+              color: getTimeColor(split.state),
               letterSpacing: '0.05em'
             }}
           >

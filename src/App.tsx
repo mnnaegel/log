@@ -3,7 +3,7 @@ import { Box, Stack } from "@mui/material";
 import SplitTimer from './SplitTimer';
 import SplitInput from './SplitInput';
 import CompletedSplits from './CompletedSplits';
-import { Split } from "./types";
+import { Split, SplitState } from "./types";
 
 function App() {
   const [currentSplit, setCurrentSplit] = useState<Split | null>(null);
@@ -14,6 +14,7 @@ function App() {
       id: Date.now().toString(),
       name,
       startTime: Date.now(),
+      state: SplitState.IN_PROGRESS
     });
   };
 
@@ -22,8 +23,21 @@ function App() {
       const completedSplit = {
         ...currentSplit,
         endTime: Date.now(),
+        state: SplitState.COMPLETED
       };
       setCompletedSplits([completedSplit, ...completedSplits]);
+      setCurrentSplit(null);
+    }
+  };
+
+  const handleAbandonSplit = () => {
+    if (currentSplit) {
+      const abandonedSplit = {
+        ...currentSplit,
+        endTime: Date.now(),
+        state: SplitState.ABANDONED
+      };
+      setCompletedSplits([abandonedSplit, ...completedSplits]);
       setCurrentSplit(null);
     }
   };
@@ -40,6 +54,7 @@ function App() {
           <SplitTimer 
             currentSplit={currentSplit} 
             onComplete={handleCompleteSplit}
+            onAbandon={handleAbandonSplit}
           />
         ) : (
           <SplitInput onCreateSplit={handleCreateSplit} />
