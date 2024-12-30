@@ -1,20 +1,17 @@
+// SplitTimer.tsx
 import { useState, useEffect } from 'react';
-import { Stack, Typography } from "@mui/material";
+import { Stack, Typography, IconButton } from "@mui/material";
+import { Split } from "./types";
+import { colors } from "./theme";
+import { formatDuration } from "./utils";
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
-type Split = {
-  id: string;
-  name: string;
-  startTime: number;
-  endTime?: number;
+type SplitTimerProps = {
+  currentSplit: Split;
+  onComplete: () => void;
 };
 
-const SplitTimer = () => {
-  const [currentSplit] = useState<Split>({
-    id: '1',
-    name: 'Cook a meal for lunch',
-    startTime: Date.now(),
-  });
-  
+const SplitTimer = ({ currentSplit, onComplete }: SplitTimerProps) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
 
   useEffect(() => {
@@ -27,43 +24,50 @@ const SplitTimer = () => {
     return () => clearInterval(timer);
   }, [currentSplit]);
 
-  const formatTime = (ms: number): string => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-
-    const pad = (num: number): string => num.toString().padStart(2, '0');
-
-    return `${pad(hours)}:${pad(minutes % 60)}:${pad(seconds % 60)}`;
-  };
-
   return (
     <Stack 
       spacing={3}
       alignItems="center"
     >
-      <Typography 
-        variant="h4" 
-        sx={{ 
-          color: '#e2b714', // monkeytype yellow
-          fontWeight: 400,
-          letterSpacing: '0.05em',
-          textAlign: 'center'
-        }}
+      <Stack 
+        direction="row" 
+        spacing={2} 
+        alignItems="center"
       >
-        {currentSplit.name}
-      </Typography>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            color: colors.yellow,
+            fontWeight: 400,
+            letterSpacing: '0.05em',
+            textAlign: 'center'
+          }}
+        >
+          {currentSplit.name}
+        </Typography>
+        <IconButton 
+          onClick={onComplete}
+          sx={{ 
+            color: colors.gray,
+            '&:hover': {
+              color: colors.yellow
+            }
+          }}
+        >
+          <CheckCircleOutlineIcon />
+        </IconButton>
+      </Stack>
       
       <Typography 
         variant="h1" 
         fontFamily="monospace"
         sx={{ 
-          color: '#646464', // light gray
+          color: colors.gray,
           fontWeight: 300,
           letterSpacing: '0.1em'
         }}
       >
-        {formatTime(elapsedTime)}
+        {formatDuration(elapsedTime)}
       </Typography>
     </Stack>
   );
