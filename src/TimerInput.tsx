@@ -1,82 +1,57 @@
-import { useState, useEffect, useRef } from 'react';
-import { Typography, Box } from "@mui/material";
+import { useEffect, useRef, useState } from 'react';
+import { Typography, Box, Stack, Fade } from "@mui/material";
 import { colors } from "./theme";
 
 type TimerInputProps = {
   onComplete: (totalMinutes: number) => void;
+  autoFocus?: boolean;
 };
 
-type TimeSegment = 'hours' | 'minutes' | 'seconds';
-
-const TimerInput = ({ onComplete }: TimerInputProps) => {
-  const [hours, setHours] = useState('AB');
-  const [minutes, setMinutes] = useState('CD');
-  const [seconds, setSeconds] = useState('EF');
-  const [activeSegment, setActiveSegment] = useState<TimeSegment>('hours');
+const TimerInput = ({ onComplete, autoFocus = false }: TimerInputProps) => {
+  const [inputString, setInputString] = useState('');
   const boxRef = useRef<HTMLDivElement>(null);
 
-  const moveToNextSegment = () => {
-    setActiveSegment(curr => {
-      if (curr === 'hours') return 'minutes';
-      if (curr === 'minutes') return 'seconds';
-      return 'seconds';
-    });
+  useEffect(() => {
+    if (autoFocus && boxRef.current) {
+      boxRef.current.focus();
+    }
+  }, [autoFocus]);
+
+  // Format the input string to display as time
+  const getDisplayTime = () => {
+    const paddedString = inputString.padStart(6, '0');
+    const hours = paddedString.slice(0, 2);
+    const minutes = paddedString.slice(2, 4);
+    const seconds = paddedString.slice(4, 6);
+    return `${hours}:${minutes}:${seconds}`;
   };
 
-  const moveToPreviousSegment = () => {
-    setActiveSegment(curr => {
-      if (curr === 'seconds') return 'minutes';
-      if (curr === 'minutes') return 'hours';
-      return 'hours';
-    });
+  const handleNumberInput = (num: string) => {
+    if (inputString.length >= 6) return;
+    setInputString(prev => prev + num);
   };
 
   const handleBackspace = () => {
-    switch (activeSegment) {
-      case 'seconds':
-        if (seconds !== 'EF') {
-          setSeconds('EF');
-        } else {
-          moveToPreviousSegment();
-        }
-        break;
-      case 'minutes':
-        if (minutes !== 'CD') {
-          setMinutes('CD');
-        } else {
-          moveToPreviousSegment();
-        }
-        break;
-      case 'hours':
-        if (hours !== 'AB') {
-          setHours('AB');
-        }
-        break;
-    }
+    setInputString(prev => prev.slice(0, -1));
+  };
+
+  const handleEnter = () => {
+    const paddedString = inputString.padStart(6, '0');
+    const hours = parseInt(paddedString.slice(0, 2));
+    const minutes = parseInt(paddedString.slice(2, 4));
+    const seconds = parseInt(paddedString.slice(4, 6));
+    
+    const totalMinutes = hours * 60 + minutes + (seconds > 0 ? 1 : 0);
+    onComplete(totalMinutes);
   };
 
   useEffect(() => {
-    if (boxRef.current) {
-      boxRef.current.focus();
-    }
-
-    const isValidNumber = (value: string, max: number): boolean => {
-      const num = parseInt(value);
-      return !isNaN(num) && num >= 0 && num <= max;
-    };
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!boxRef.current?.contains(document.activeElement)) return;
       e.preventDefault();
 
       if (e.key === 'Enter') {
-        if (isValidNumber(hours, 23) && isValidNumber(minutes, 59) && isValidNumber(seconds, 59)) {
-          const h = parseInt(hours);
-          const m = parseInt(minutes);
-          const s = parseInt(seconds);
-          const totalMinutes = h * 60 + m + (s > 0 ? 1 : 0);
-          onComplete(totalMinutes);
-        }
+        handleEnter();
         return;
       }
 
@@ -85,134 +60,82 @@ const TimerInput = ({ onComplete }: TimerInputProps) => {
         return;
       }
 
-      // Only handle number inputs
-      if (!/^\d$/.test(e.key)) return;
-
-      const num = parseInt(e.key);
-      switch (activeSegment) {
-        case 'hours':
-          if (hours === 'AB') {
-            if (num <= 2) {
-              setHours(num + '0');
-            }
-          } else {
-            const firstDigit = parseInt(hours[0]);
-            const candidate = firstDigit * 10 + num;
-            if (candidate <= 23) {
-              setHours(candidate.toString().padStart(2, '0'));
-              moveToNextSegment();
-            }
-          }
-          break;
-        case 'minutes':
-          if (minutes === 'CD') {
-            if (num <= 5) {
-              setMinutes(num + '0');
-            }
-          } else {
-            const firstDigit = parseInt(minutes[0]);
-            const candidate = firstDigit * 10 + num;
-            if (candidate <= 59) {
-              setMinutes(candidate.toString().padStart(2, '0'));
-              moveToNextSegment();
-            }
-          }
-          break;
-        case 'seconds':
-          if (seconds === 'EF') {
-            if (num <= 5) {
-              setSeconds(num + '0');
-            }
-          } else {
-            const firstDigit = parseInt(seconds[0]);
-            const candidate = firstDigit * 10 + num;
-            if (candidate <= 59) {
-              setSeconds(candidate.toString().padStart(2, '0'));
-            }
-          }
-          break;
+      if (/^[0-9]$/.test(e.key)) {
+        handleNumberInput(e.key);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSegment, hours, minutes, seconds, onComplete]);
+  }, [inputString]);
 
   return (
-    <Box
-      ref={boxRef}
-      tabIndex={0}
-      onClick={() => {
-        if (boxRef.current) boxRef.current.focus();
-      }}
-      sx={{
-        outline: 'none',
-        position: 'relative',
-        cursor: 'text',
-        userSelect: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 2
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-        <Typography
-          variant="h2"
-          fontFamily="monospace"
-          sx={{
-            color: colors.gray,
-            borderBottom: activeSegment === 'hours' ? `2px solid ${colors.yellow}` : 'none'
-          }}
-        >
-          {hours}
-        </Typography>
-        <Typography
-          variant="h2"
-          fontFamily="monospace"
-          sx={{ color: colors.gray }}
-        >
-          :
-        </Typography>
-        <Typography
-          variant="h2"
-          fontFamily="monospace"
-          sx={{
-            color: colors.gray,
-            borderBottom: activeSegment === 'minutes' ? `2px solid ${colors.yellow}` : 'none'
-          }}
-        >
-          {minutes}
-        </Typography>
-        <Typography
-          variant="h2"
-          fontFamily="monospace"
-          sx={{ color: colors.gray }}
-        >
-          :
-        </Typography>
-        <Typography
-          variant="h2"
-          fontFamily="monospace"
-          sx={{
-            color: colors.gray,
-            borderBottom: activeSegment === 'seconds' ? `2px solid ${colors.yellow}` : 'none'
-          }}
-        >
-          {seconds}
-        </Typography>
-      </Box>
-      <Typography
+    <Fade in={true} timeout={300}>
+      <Box
+        ref={boxRef}
+        tabIndex={0}
+        onClick={() => {
+          if (boxRef.current) boxRef.current.focus();
+        }}
         sx={{
-          color: colors.gray,
-          opacity: 0.7,
-          fontSize: '0.875rem',
-          textAlign: 'center'
+          outline: 'none',
+          cursor: 'text',
+          userSelect: 'none',
+          '&:focus': {
+            '& .time-display': {
+              color: colors.yellow,
+            }
+          }
         }}
       >
-        Use number keys to input time, enter to confirm
-      </Typography>
-    </Box>
+        <Stack spacing={1} alignItems="center">
+          <Typography
+            variant="h2"
+            fontFamily="monospace"
+            className="time-display"
+            sx={{
+              color: colors.gray,
+              letterSpacing: '0.1em',
+              transition: 'color 0.2s ease'
+            }}
+          >
+            {getDisplayTime()}
+          </Typography>
+          
+          <Stack 
+            direction="row" 
+            spacing={4} 
+            sx={{ 
+              color: colors.gray,
+              opacity: 0.7,
+              px: 1
+            }}
+          >
+            <Typography sx={{ width: '3ch', textAlign: 'center' }}>
+              HRS
+            </Typography>
+            <Typography sx={{ width: '3ch', textAlign: 'center' }}>
+              MIN
+            </Typography>
+            <Typography sx={{ width: '3ch', textAlign: 'center' }}>
+              SEC
+            </Typography>
+          </Stack>
+
+          <Typography
+            sx={{
+              color: colors.gray,
+              opacity: 0.7,
+              fontSize: '0.875rem',
+              textAlign: 'center',
+              mt: 2
+            }}
+          >
+            Use number keys to input time, enter to confirm
+          </Typography>
+        </Stack>
+      </Box>
+    </Fade>
   );
 };
 
