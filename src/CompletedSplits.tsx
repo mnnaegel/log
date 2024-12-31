@@ -5,7 +5,7 @@ import { Split, SplitState } from "./types";
 import { colors } from "./theme";
 import { formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff, formatDateTime } from "./utils";
 import EditableText from './EditableText';
-import React from "react";
+import {useState} from "react";
 
 type CompletedSplitsProps = {
   splits: Split[];
@@ -13,7 +13,7 @@ type CompletedSplitsProps = {
 };
 
 const CompletedSplits = ({ splits, onUpdateName }: CompletedSplitsProps) => {
-  const [selectedDate, setSelectedDate] = React.useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const getTimeColor = (split: Split) => {
     if (split.state === SplitState.ABANDONED) return colors.softRed;
@@ -35,12 +35,33 @@ const CompletedSplits = ({ splits, onUpdateName }: CompletedSplitsProps) => {
   );
   
   return (
-    <Stack alignItems="center" width="100%">
+    <Stack alignItems="center" minWidth="50rem">
       <DateFilter
         selectedDate={selectedDate}
         onDateChange={(date) => date && setSelectedDate(date)}
       />
-      <TableContainer sx={{ height: '300px', overflow: 'auto', scrollbarWidth: 'none' }}>
+      <TableContainer 
+        sx={{ 
+          height: '300px', 
+          overflow: 'auto',
+          '&::-webkit-scrollbar': {
+            width: '8px',
+            backgroundColor: 'transparent',
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: colors.borderColor,
+            borderRadius: '4px',
+            '&:hover': {
+              backgroundColor: colors.gray,
+            }
+          },
+          // For Firefox
+          scrollbarWidth: 'thin',
+          scrollbarColor: `${colors.borderColor} transparent`
+        }}>
         <Table size="small" sx={{ maxWidth: '1000px', margin: '0 auto' }}>
           <TableHead>
             <TableRow>
