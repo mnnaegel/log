@@ -48,6 +48,12 @@ export async function updateSplit(splitId: string, updates: Split): Promise<Spli
   });
 }
 
+export async function deleteSplit(splitId: string): Promise<void> {
+  return fetchWithAuth(`/api/splits/${splitId}`, {
+    method: 'DELETE',
+  });
+}
+
 export async function getSplitsForDate(date: Date): Promise<Split[]> {
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);

@@ -63,6 +63,19 @@ class SplitController(private val splitService: SplitService) {
         return splitService.updateSplit(id, split)
     }
 
+    @DeleteMapping("/{id}")
+    fun deleteSplit(
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal userId: String
+    ) {
+        // Ensure the split belongs to the authenticated user
+        val existingSplit = splitService.getSplitById(id)
+        if (existingSplit.userId != UUID.fromString(userId)) {
+            throw UnauthorizedException("You don't have permission to delete this split")
+        }
+        splitService.deleteSplit(id)
+    }
+
     @ExceptionHandler(NoSuchElementException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleNotFound(e: NoSuchElementException) = e.message

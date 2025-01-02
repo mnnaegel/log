@@ -8,7 +8,7 @@ import SplitInput from "./SplitInput";
 import AuthButton from "./AuthModal";
 import DateFilter from './DateFilter';
 import NotesModal from './NotesModal';
-import {createSplit, getSplitsForDate, updateSplit} from './api';
+import {createSplit, deleteSplit, getSplitsForDate, updateSplit} from './api';
 import { Session } from "@supabase/supabase-js";
 import getSupabaseClient from "./getSupabaseClient";
 import {colors} from "./theme.ts";
@@ -64,6 +64,15 @@ function App() {
 
     setCurrentSplit(newSplit);
   };
+
+  const handleDeleteSplit = async (split: Split) => {
+    try {
+      setCompletedSplits(completedSplits.filter(s => s.id !== split.id));
+      await deleteSplit(split.id);
+    } catch (err) {
+      console.error('Failed to delete split:', err);
+    }
+  }
 
   const handleUpdateCurrentSplitName = (newName: string) => {
     if (currentSplit) {
@@ -173,6 +182,7 @@ function App() {
               <CompletedSplits
                 splits={completedSplits}
                 onUpdateName={handleUpdateCompletedSplitName}
+                onDeleteSplit={handleDeleteSplit}
                 isLoading={loading}
                 error={error}
               />

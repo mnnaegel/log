@@ -9,6 +9,10 @@ import kotlin.NoSuchElementException
 
 @Service
 class SplitService(private val splitRepository: SplitRepository) {
+    fun deleteSplit(id: UUID) {
+        splitRepository.deleteById(id)
+    }
+
     fun getSplitsByUserAndTimeRange(userId: UUID, startTime: Long, endTime: Long): List<Split> {
         return splitRepository.findByUserIdAndStartTimeBetweenOrderByStartTimeDesc(userId, startTime, endTime)
     }

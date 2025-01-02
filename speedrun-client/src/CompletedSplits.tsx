@@ -1,22 +1,25 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import {IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import { Split, SplitState } from "./types";
 import { colors } from "./theme";
 import { formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff, formatDateTime } from "./utils";
 import EditableText from './EditableText';
 import React from "react";
+import {DeleteIcon} from "lucide-react";
 
 type CompletedSplitsProps = {
   splits: Split[];
   onUpdateName: (split: Split, newName: string) => void;
+  onDeleteSplit: (split: Split) => void;
   isLoading?: boolean;
   error?: string | null;
 };
 
-const CompletedSplits = ({ 
-  splits, 
-  onUpdateName, 
+const CompletedSplits = ({
+  splits,
+  onUpdateName,
+  onDeleteSplit,
   isLoading = false,
-  error = null 
+  error = null
 }: CompletedSplitsProps) => {
   const getTimeColor = (split: Split) => {
     if (split.state === SplitState.ABANDONED) return colors.softRed;
@@ -26,7 +29,7 @@ const CompletedSplits = ({
   };
 
   const BaseCell = ({ children, align = 'left' }: { children: React.ReactNode, align?: 'left' | 'right' }) => (
-    <TableCell 
+    <TableCell
       align={align}
       sx={{
         borderBottom: `1px solid ${colors.borderColor}`,
@@ -36,7 +39,7 @@ const CompletedSplits = ({
       {children}
     </TableCell>
   );
-  
+
   if (isLoading) {
     return (
       <Typography sx={{ color: colors.gray, mt: 4 }}>
@@ -44,7 +47,7 @@ const CompletedSplits = ({
       </Typography>
     );
   }
-  
+
   if (error) {
     return (
       <Typography sx={{ color: colors.softRed, mt: 4 }}>
@@ -52,7 +55,7 @@ const CompletedSplits = ({
       </Typography>
     );
   }
-  
+
   if (splits.length === 0) {
     return (
       <Typography sx={{ color: colors.gray, mt: 4 }}>
@@ -62,9 +65,9 @@ const CompletedSplits = ({
   }
 
   return (
-    <TableContainer 
-      sx={{ 
-        height: '300px', 
+    <TableContainer
+      sx={{
+        height: '300px',
         overflow: 'auto',
         '&::-webkit-scrollbar': {
           width: '8px',
@@ -110,6 +113,10 @@ const CompletedSplits = ({
             <BaseCell align="right">
               <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
                 DIFFERENCE
+              </Typography>
+            </BaseCell>
+            <BaseCell align="right">
+              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
               </Typography>
             </BaseCell>
           </TableRow>
@@ -178,6 +185,22 @@ const CompletedSplits = ({
                     </Typography>
                   )}
                 </BaseCell>
+               <BaseCell align="right">
+<IconButton
+  onClick={() => onDeleteSplit(split)}
+  size="small"
+  sx={{
+    color: colors.gray,
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      color: colors.softRed,
+      backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    }
+  }}
+>
+  <DeleteIcon />
+</IconButton>
+</BaseCell>
               </TableRow>
             );
           })}
