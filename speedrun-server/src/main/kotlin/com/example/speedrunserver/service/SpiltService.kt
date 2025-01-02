@@ -4,20 +4,17 @@ import com.example.speedrunserver.model.Split
 import com.example.speedrunserver.repository.SplitRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.NoSuchElementException
 
 @Service
-@Transactional
 class SplitService(private val splitRepository: SplitRepository) {
+    fun getSplitsByUserAndTimeRange(userId: UUID, startTime: Long, endTime: Long): List<Split> {
+        return splitRepository.findByUserIdAndStartTimeBetweenOrderByStartTimeDesc(userId, startTime, endTime)
+    }
 
     fun createSplit(split: Split): Split {
         return splitRepository.save(split)
-    }
-
-    fun getSplitsByUser(userId: UUID): List<Split> {
-        return splitRepository.findByUserIdOrderByStartTimeDesc(userId)
     }
 
     fun getSplitById(id: UUID): Split {

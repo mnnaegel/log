@@ -7,5 +7,4 @@ data class CreateSplitRequest(
     val startTime: Long,
     val pessimisticEstimate: Int,
     val state: SplitState,
-    val userId: UUID
 )

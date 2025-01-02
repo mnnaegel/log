@@ -1,14 +1,16 @@
+// App.tsx
 import { useState } from 'react';
 import { Box, Stack } from "@mui/material";
 import SplitTimer from './SplitTimer';
 import CompletedSplits from './CompletedSplits';
 import { Split, SplitState } from "./types";
 import SplitInput from "./SplitInput";
-import AuthButton from "./AuthModal.tsx";
+import AuthButton from "./AuthModal";
 
 function App() {
   const [currentSplit, setCurrentSplit] = useState<Split | null>(null);
   const [completedSplits, setCompletedSplits] = useState<Split[]>([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleCreateSplit = (name: string, estimatedMinutes: number) => {
     setCurrentSplit({
@@ -48,6 +50,7 @@ function App() {
       };
       setCompletedSplits([completedSplit, ...completedSplits]);
       setCurrentSplit(null);
+      setRefreshTrigger(prev => prev + 1);
     }
   };
 
@@ -60,6 +63,7 @@ function App() {
       };
       setCompletedSplits([abandonedSplit, ...completedSplits]);
       setCurrentSplit(null);
+      setRefreshTrigger(prev => prev + 1);
     }
   };
 
@@ -74,25 +78,30 @@ function App() {
       <Box sx={{ position: 'absolute', top: '1rem', right: '1rem' }}>
         <AuthButton />
       </Box>
-      <Box p={4}>
-        {currentSplit ? (
-          <SplitTimer 
-            currentSplit={currentSplit} 
-            onComplete={handleCompleteSplit}
-            onAbandon={handleAbandonSplit}
-            onUpdateName={handleUpdateCurrentSplitName}
-          />
-        ) : (
-          <SplitInput onCreateSplit={handleCreateSplit} />
-        )}
-      </Box>
+      
+      {(
+        <>
+          <Box p={4}>
+            {currentSplit ? (
+              <SplitTimer
+                currentSplit={currentSplit}
+                onComplete={handleCompleteSplit}
+                onAbandon={handleAbandonSplit}
+                onUpdateName={handleUpdateCurrentSplitName}
+              />
+            ) : (
+              <SplitInput onCreateSplit={handleCreateSplit}/>
+            )}
+          </Box>
 
-      <Stack width="100%" pb={8} alignItems="center">
-        <CompletedSplits 
-          splits={completedSplits} 
-          onUpdateName={handleUpdateCompletedSplitName}
-        />
-      </Stack>
+          <Stack width="100%" pb={8} alignItems="center">
+            <CompletedSplits
+              onUpdateName={handleUpdateCompletedSplitName}
+              refreshTrigger={refreshTrigger}
+            />
+          </Stack>
+        </>
+      )}
     </Stack>
   );
 }

@@ -30,8 +30,23 @@ class SplitController(private val splitService: SplitService) {
     }
 
     @GetMapping
-    fun getSplits(@AuthenticationPrincipal userId: String): List<Split> {
-        return splitService.getSplitsByUser(UUID.fromString(userId))
+    fun getSplits(
+        @AuthenticationPrincipal userId: String,
+        @RequestParam startTime: Long?,
+        @RequestParam endTime: Long?
+    ): List<Split> {
+        return if (startTime != null && endTime != null) {
+            splitService.getSplitsByUserAndTimeRange(
+                UUID.fromString(userId),
+                startTime,
+                endTime
+            )
+        } else {
+            splitService.getSplitsByUserAndTimeRange(
+                UUID.fromString(userId),
+                Long.MIN_VALUE,
+                Long.MAX_VALUE)
+        }
     }
 
     @PutMapping("/{id}")
