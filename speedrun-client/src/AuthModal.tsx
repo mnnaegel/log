@@ -42,9 +42,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
       if (error) console.log(error);
 
+      if (isSignUp && !error) {
+        setError('Please check your email to confirm your account');
+      }
+
       if (data.session) {
-        console.log('Authentication successful!');
-        console.log('JWT Token:', data.session.access_token);
         onClose();
       }
     } catch (err) {
@@ -119,7 +121,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               sx={inputStyle}
             />
             {error && (
-              <Typography sx={{ color: colors.softRed, fontSize: '0.875rem' }}>
+              <Typography
+                sx={{
+                  color: error.includes('check your email') ? colors.green : colors.softRed,
+                  fontSize: '0.875rem'
+                  }}>
                 {error}
               </Typography>
             )}
@@ -185,15 +191,36 @@ const AuthButton: React.FC = () => {
 
   if (session?.user) {
     return (
-      <Typography
-        sx={{
-          color: colors.gray,
-          fontSize: '0.875rem',
-          letterSpacing: '0.05em',
-        }}
-      >
-        {`Logged in as: ${session.user.email}`}
-      </Typography>
+      <Stack direction="row" spacing={2} alignItems="center">
+        <Typography
+          sx={{
+            color: colors.gray,
+            fontSize: '0.875rem',
+            letterSpacing: '0.05em',
+          }}
+        >
+          {session.user.email}
+        </Typography>
+        <Button
+          onClick={() => supabase.auth.signOut()}
+          sx={{
+            color: colors.gray,
+            borderColor: colors.borderColor,
+            '&:hover': {
+              color: colors.softRed,
+              borderColor: colors.softRed,
+              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+            },
+            textTransform: 'none',
+            minWidth: 'auto',
+            padding: '4px 12px',
+          }}
+          variant="outlined"
+          size="small"
+        >
+          Sign Out
+        </Button>
+      </Stack>
     );
   }
 
