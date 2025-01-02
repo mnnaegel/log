@@ -1,25 +1,68 @@
-// App.tsx
-import { useState } from 'react';
-import { Box, Stack } from "@mui/material";
+import { useState, useEffect } from 'react';
+import {Box, Stack, Typography} from "@mui/material";
+import dayjs from 'dayjs';
 import SplitTimer from './SplitTimer';
 import CompletedSplits from './CompletedSplits';
 import { Split, SplitState } from "./types";
 import SplitInput from "./SplitInput";
 import AuthButton from "./AuthModal";
+import DateFilter from './DateFilter';
+import NotesModal from './NotesModal';
+import {createSplit, getSplitsForDate, updateSplit} from './api';
+import { Session } from "@supabase/supabase-js";
+import getSupabaseClient from "./getSupabaseClient";
+import {colors} from "./theme.ts";
 
 function App() {
   const [currentSplit, setCurrentSplit] = useState<Split | null>(null);
   const [completedSplits, setCompletedSplits] = useState<Split[]>([]);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreateSplit = (name: string, estimatedMinutes: number) => {
-    setCurrentSplit({
-      id: Date.now().toString(),
-      name,
+  useEffect(() => {
+    getSupabaseClient().auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+  }, []);
+
+  useEffect(() => {
+    async function fetchSplits() {
+      if (!session) {
+        setCompletedSplits([]);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        const startOfDay = selectedDate.startOf('day').valueOf();
+        const fetchedSplits = await getSplitsForDate(new Date(startOfDay));
+        setCompletedSplits(fetchedSplits);
+      } catch (err) {
+        console.error('Error fetching splits:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch splits');
+        setCompletedSplits([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void fetchSplits();
+  }, [selectedDate, session]);
+
+  const handleCreateSplit = async (name: string, estimatedMinutes: number) => {
+    const newSplit = await createSplit({
+      name: name,
       startTime: Date.now(),
       pessimisticEstimate: estimatedMinutes,
       state: SplitState.IN_PROGRESS
     });
+
+    setCurrentSplit(newSplit);
   };
 
   const handleUpdateCurrentSplitName = (newName: string) => {
@@ -31,15 +74,31 @@ function App() {
     }
   };
 
-  const handleUpdateCompletedSplitName = (splitId: string, newName: string) => {
-    setCompletedSplits(splits =>
-      splits.map(split =>
-        split.id === splitId
-          ? { ...split, name: newName }
-          : split
-      )
-    );
+  const handleUpdateCompletedSplitName = async (split: Split, newName: string) => {
+    try {
+      const updatedSplit = await updateSplit(split.id, { ...split, name: newName });
+      setCompletedSplits(currentSplits =>
+        currentSplits.map(s =>
+          s.id === split.id ? updatedSplit : split
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update split name:', err);
+    }
   };
+
+  const updateSplitEndTime = async (split: Split, newEndTime: number) => {
+    try {
+      const updatedSplit = await updateSplit(split.id, { ...split, endTime: newEndTime });
+      setCompletedSplits(currentSplits =>
+        currentSplits.map(s =>
+          s.id === split.id ? updatedSplit : split
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update split end time:', err);
+    }
+  }
 
   const handleCompleteSplit = () => {
     if (currentSplit) {
@@ -48,9 +107,10 @@ function App() {
         endTime: Date.now(),
         state: SplitState.COMPLETED
       };
+
+      void updateSplitEndTime(currentSplit, Date.now());
       setCompletedSplits([completedSplit, ...completedSplits]);
       setCurrentSplit(null);
-      setRefreshTrigger(prev => prev + 1);
     }
   };
 
@@ -61,16 +121,17 @@ function App() {
         endTime: Date.now(),
         state: SplitState.ABANDONED
       };
-      setCompletedSplits([abandonedSplit, ...completedSplits]);
+      if (dayjs(abandonedSplit.startTime).isSame(selectedDate, 'day')) {
+        setCompletedSplits([abandonedSplit, ...completedSplits]);
+      }
       setCurrentSplit(null);
-      setRefreshTrigger(prev => prev + 1);
     }
   };
 
   return (
-    <Stack 
-      width="100%" 
-      height="100%" 
+    <Stack
+      width="100%"
+      height="100%"
       alignItems="center"
       spacing={6}
       justifyContent="space-between"
@@ -78,7 +139,7 @@ function App() {
       <Box sx={{ position: 'absolute', top: '1rem', right: '1rem' }}>
         <AuthButton />
       </Box>
-      
+
       {(
         <>
           <Box p={4}>
@@ -95,11 +156,40 @@ function App() {
           </Box>
 
           <Stack width="100%" pb={8} alignItems="center">
-            <CompletedSplits
-              onUpdateName={handleUpdateCompletedSplitName}
-              refreshTrigger={refreshTrigger}
-            />
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              sx={{ mb: 3 }}
+            >
+              <DateFilter
+                selectedDate={selectedDate}
+                onDateChange={(date) => date && setSelectedDate(date)}
+                onNotesOpen={() => setIsNotesOpen(true)}
+              />
+            </Stack>
+
+            {session ? (
+              <CompletedSplits
+                splits={completedSplits}
+                onUpdateName={handleUpdateCompletedSplitName}
+                isLoading={loading}
+                error={error}
+              />
+            ) : (
+              <Typography sx={{ color: colors.gray, mt: 4 }}>
+                Please sign in to view your splits
+              </Typography>
+            )}
           </Stack>
+
+          <NotesModal
+            open={isNotesOpen}
+            onClose={() => setIsNotesOpen(false)}
+            selectedDate={selectedDate}
+            notes={notes}
+            onNotesChange={setNotes}
+          />
         </>
       )}
     </Stack>

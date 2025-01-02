@@ -4,7 +4,7 @@ import { Split, SplitState } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
-type CreateSplitRequest = {
+export type CreateSplitRequest = {
   name: string;
   startTime: number;
   pessimisticEstimate: number;
@@ -41,7 +41,7 @@ export async function createSplit(split: CreateSplitRequest): Promise<Split> {
   });
 }
 
-export async function updateSplit(splitId: string, updates: Partial<Split>): Promise<Split> {
+export async function updateSplit(splitId: string, updates: Split): Promise<Split> {
   return fetchWithAuth(`/api/splits/${splitId}`, {
     method: 'PUT',
     body: JSON.stringify(updates),

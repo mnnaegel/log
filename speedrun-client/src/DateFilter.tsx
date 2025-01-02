@@ -1,37 +1,24 @@
-import React from 'react';
 import { Stack, Typography, IconButton } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { colors } from './theme';
 import dayjs from 'dayjs';
-import NotesModal from './NotesModal';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 
 type DateFilterProps = {
   selectedDate: dayjs.Dayjs;
   onDateChange: (date: dayjs.Dayjs | null) => void;
+  onNotesOpen: () => void;
 };
 
-const DateFilter = ({ selectedDate, onDateChange }: DateFilterProps) => {
-  const [isNotesOpen, setIsNotesOpen] = React.useState(false);
-  const [notes, setNotes] = React.useState('');
-
-  const handleNotesOpen = () => {
-    setIsNotesOpen(true);
-  };
-
-  const handleNotesClose = () => {
-    setIsNotesOpen(false);
-  };
-
+const DateFilter = ({ selectedDate, onDateChange, onNotesOpen }: DateFilterProps) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Stack 
         direction="row" 
         spacing={2} 
         alignItems="center"
-        sx={{ mb: 3 }}
       >
         <Typography
           sx={{
@@ -72,7 +59,7 @@ const DateFilter = ({ selectedDate, onDateChange }: DateFilterProps) => {
           }}
         />
         <IconButton 
-          onClick={handleNotesOpen}
+          onClick={onNotesOpen}
           sx={{
             color: colors.gray,
             '&:hover': {
@@ -83,14 +70,6 @@ const DateFilter = ({ selectedDate, onDateChange }: DateFilterProps) => {
           <EditNoteIcon sx={{ fontSize: '1.5rem' }} />
         </IconButton>
       </Stack>
-
-      <NotesModal
-        open={isNotesOpen}
-        onClose={handleNotesClose}
-        selectedDate={selectedDate}
-        notes={notes}
-        onNotesChange={setNotes}
-      />
     </LocalizationProvider>
   );
 };

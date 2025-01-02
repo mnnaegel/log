@@ -180,13 +180,9 @@ const AuthButton: React.FC = () => {
     });
 
     // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   if (session?.user) {

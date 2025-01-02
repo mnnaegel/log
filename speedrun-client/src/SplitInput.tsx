@@ -1,10 +1,7 @@
-// SplitInput.tsx
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Stack, TextField, Fade } from "@mui/material";
 import { colors } from "./theme";
 import TimerInput from './TimerInput';
-import { createSplit } from './api';
-import { SplitState } from './types';
 
 type SplitInputProps = {
   onCreateSplit: (name: string, estimatedMinutes: number) => void;
@@ -14,7 +11,6 @@ const SplitInput = ({ onCreateSplit }: SplitInputProps) => {
   const [state, setState] = useState<'NAME' | 'ESTIMATE'>('NAME');
   const [name, setName] = useState('');
   const [showTimer, setShowTimer] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -35,25 +31,6 @@ const SplitInput = ({ onCreateSplit }: SplitInputProps) => {
     }
   };
 
-  const handleEstimateComplete = async (minutes: number) => {
-    if (name.trim()) {
-      try {
-        await createSplit({
-          name: name.trim(),
-          startTime: Date.now(),
-          pessimisticEstimate: minutes,
-          state: SplitState.IN_PROGRESS,
-        });
-        onCreateSplit(name.trim(), minutes);
-        setName('');
-        setState('NAME');
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create split');
-        // Keep the form open if there's an error
-      }
-    }
-  };
 
   return (
     <Stack spacing={5} alignItems="center">
@@ -66,8 +43,6 @@ const SplitInput = ({ onCreateSplit }: SplitInputProps) => {
           variant="standard"
           placeholder="What are you working on?"
           inputRef={nameInputRef}
-          error={!!error}
-          helperText={error}
           sx={{
             maxWidth: '600px',
             '& .MuiInput-input': {
@@ -95,7 +70,7 @@ const SplitInput = ({ onCreateSplit }: SplitInputProps) => {
       </Fade>
       {showTimer && (
         <TimerInput 
-          onComplete={handleEstimateComplete} 
+          onComplete={(minutes) => onCreateSplit(name, minutes)}
           autoFocus={true}
         />
       )}
