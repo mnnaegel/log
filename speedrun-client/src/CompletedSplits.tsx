@@ -7,8 +7,8 @@ import { formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff, formatD
 import EditableText from './EditableText';
 import React, { useState, useEffect } from "react";
 import { getSplitsForDate, updateSplit } from './api';
-import {supabase} from "./supabase.ts";
 import {Session} from "@supabase/supabase-js";
+import getSupabaseClient from "./getSupabaseClient.ts";
 
 type CompletedSplitsProps = {
   onUpdateName: (splitId: string, newName: string) => void;
@@ -23,11 +23,11 @@ const CompletedSplits = ({ onUpdateName, refreshTrigger }: CompletedSplitsProps)
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    getSupabaseClient().auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = getSupabaseClient().auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 

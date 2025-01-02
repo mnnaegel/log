@@ -1,5 +1,5 @@
 // api.ts
-import { supabase } from './supabase';
+import getSupabaseClient from './getSupabaseClient.ts';
 import { Split, SplitState } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -12,7 +12,7 @@ type CreateSplitRequest = {
 };
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await getSupabaseClient().auth.getSession();
   
   if (!session?.access_token) {
     throw new Error('No authentication token found');

@@ -1,4 +1,3 @@
-// supabase.ts
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -10,6 +9,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 const client = createClient(supabaseUrl, supabaseAnonKey);
 
-const supabase = () => client;
+const getSupabaseClient = () => client;
 
-export default supabase;
+export default getSupabaseClient;
