@@ -1,9 +1,15 @@
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
+	kotlin("plugin.noarg") version "1.9.25"
 	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.flywaydb.flyway") version "9.22.3"
+}
+
+noArg {
+	annotation("jakarta.persistence.Entity")
+	invokeInitializers = true
 }
 
 group = "com.example"
@@ -35,6 +41,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("com.auth0:java-jwt:4.4.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

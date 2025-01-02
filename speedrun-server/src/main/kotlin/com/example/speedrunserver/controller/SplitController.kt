@@ -1,8 +1,10 @@
 package com.example.speedrunserver.controller
 
+import com.example.speedrunserver.model.CreateSplitRequest
 import com.example.speedrunserver.model.Split
 import com.example.speedrunserver.service.SplitService
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.*
 import kotlin.NoSuchElementException
@@ -13,24 +15,46 @@ class SplitController(private val splitService: SplitService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createSplit(@RequestBody split: Split): Split {
+    fun createSplit(
+        @RequestBody request: CreateSplitRequest,
+        @AuthenticationPrincipal userId: String
+    ): Split {
+        val split = Split(
+            name = request.name,
+            startTime = request.startTime,
+            pessimisticEstimate = request.pessimisticEstimate,
+            state = request.state,
+            userId = UUID.fromString(userId)
+        )
         return splitService.createSplit(split)
     }
 
-    @GetMapping("/user/{userId}")
-    fun getSplitsByUser(@PathVariable userId: UUID): List<UUID> {
-        return splitService.getSplitsByUser(userId).map { it.id }
+    @GetMapping
+    fun getSplits(@AuthenticationPrincipal userId: String): List<Split> {
+        return splitService.getSplitsByUser(UUID.fromString(userId))
     }
 
     @PutMapping("/{id}")
     fun updateSplit(
         @PathVariable id: UUID,
-        @RequestBody split: Split
+        @RequestBody split: Split,
+        @AuthenticationPrincipal userId: String
     ): Split {
+        // Ensure the split belongs to the authenticated user
+        val existingSplit = splitService.getSplitById(id)
+        if (existingSplit.userId != UUID.fromString(userId)) {
+            throw UnauthorizedException("You don't have permission to update this split")
+        }
         return splitService.updateSplit(id, split)
     }
 
     @ExceptionHandler(NoSuchElementException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleNotFound(e: NoSuchElementException) = e.message
+
+    @ExceptionHandler(UnauthorizedException::class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun handleUnauthorized(e: UnauthorizedException) = e.message
 }
+
+class UnauthorizedException(message: String) : RuntimeException(message)

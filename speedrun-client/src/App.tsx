@@ -4,6 +4,7 @@ import SplitTimer from './SplitTimer';
 import CompletedSplits from './CompletedSplits';
 import { Split, SplitState } from "./types";
 import SplitInput from "./SplitInput";
+import AuthButton from "./AuthModal.tsx";
 
 function App() {
   const [currentSplit, setCurrentSplit] = useState<Split | null>(null);
@@ -70,6 +71,9 @@ function App() {
       spacing={6}
       justifyContent="space-between"
     >
+      <Box sx={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+        <AuthButton />
+      </Box>
       <Box p={4}>
         {currentSplit ? (
           <SplitTimer 

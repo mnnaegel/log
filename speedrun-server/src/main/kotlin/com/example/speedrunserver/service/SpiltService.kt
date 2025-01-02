@@ -20,9 +20,13 @@ class SplitService(private val splitRepository: SplitRepository) {
         return splitRepository.findByUserIdOrderByStartTimeDesc(userId)
     }
 
-    fun updateSplit(id: UUID, updatedSplit: Split): Split {
-        val existingSplit = splitRepository.findByIdOrNull(id)
+    fun getSplitById(id: UUID): Split {
+        return splitRepository.findByIdOrNull(id)
             ?: throw NoSuchElementException("Split not found with id: $id")
+    }
+
+    fun updateSplit(id: UUID, updatedSplit: Split): Split {
+        val existingSplit = getSplitById(id)
 
         existingSplit.apply {
             name = updatedSplit.name

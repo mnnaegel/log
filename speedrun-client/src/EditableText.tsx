@@ -61,17 +61,6 @@ const EditableText = ({
       sx={{ 
         cursor: 'pointer',
         position: 'relative',
-        '&:hover::after': {
-          content: '"Double click to edit"',
-          bottom: '-5rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          fontSize: '0.75rem',
-          color: colors.gray,
-          opacity: 0.7,
-          whiteSpace: 'nowrap',
-          pointerEvents: 'none',
-        }
       }}
     >
       {isEditing ? (
