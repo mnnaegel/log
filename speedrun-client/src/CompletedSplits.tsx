@@ -1,7 +1,7 @@
 import {IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
-import { Split, SplitState } from "./types";
-import { colors } from "./theme";
-import { formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff, formatDateTime } from "./utils";
+import {Split, SplitState} from "./types";
+import {colors} from "./theme";
+import {formatDuration, formatElapsedTime, minutesToMs, formatTimeDiff, formatDateTime} from "./utils";
 import EditableText from './EditableText';
 import React from "react";
 import {DeleteIcon} from "lucide-react";
@@ -15,12 +15,12 @@ type CompletedSplitsProps = {
 };
 
 const CompletedSplits = ({
-  splits,
-  onUpdateName,
-  onDeleteSplit,
-  isLoading = false,
-  error = null
-}: CompletedSplitsProps) => {
+                           splits,
+                           onUpdateName,
+                           onDeleteSplit,
+                           isLoading = false,
+                           error = null
+                         }: CompletedSplitsProps) => {
   const getTimeColor = (split: Split) => {
     if (split.state === SplitState.ABANDONED) return colors.softRed;
     const actualMs = split.endTime! - split.startTime;
@@ -28,7 +28,7 @@ const CompletedSplits = ({
     return actualMs <= estimateMs ? colors.green : colors.red;
   };
 
-  const BaseCell = ({ children, align = 'left' }: { children: React.ReactNode, align?: 'left' | 'right' }) => (
+  const BaseCell = ({children, align = 'left'}: { children: React.ReactNode, align?: 'left' | 'right' }) => (
     <TableCell
       align={align}
       sx={{
@@ -42,7 +42,7 @@ const CompletedSplits = ({
 
   if (isLoading) {
     return (
-      <Typography sx={{ color: colors.gray, mt: 4 }}>
+      <Typography sx={{color: colors.gray, mt: 4}}>
         Loading splits...
       </Typography>
     );
@@ -50,7 +50,7 @@ const CompletedSplits = ({
 
   if (error) {
     return (
-      <Typography sx={{ color: colors.softRed, mt: 4 }}>
+      <Typography sx={{color: colors.softRed, mt: 4}}>
         {error}
       </Typography>
     );
@@ -58,7 +58,7 @@ const CompletedSplits = ({
 
   if (splits.length === 0) {
     return (
-      <Typography sx={{ color: colors.gray, mt: 4 }}>
+      <Typography sx={{color: colors.gray, mt: 4}}>
         No splits found for this date
       </Typography>
     );
@@ -87,36 +87,36 @@ const CompletedSplits = ({
         scrollbarColor: `${colors.borderColor} transparent`
       }}
     >
-      <Table size="small" sx={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <Table size="small" sx={{maxWidth: '1000px', margin: '0 auto'}}>
         <TableHead>
           <TableRow>
             <BaseCell>
-              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
+              <Typography sx={{color: colors.gray, fontSize: '0.75rem', fontWeight: 500}}>
                 SPLIT NAME
               </Typography>
             </BaseCell>
             <BaseCell align="right">
-              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
+              <Typography sx={{color: colors.gray, fontSize: '0.75rem', fontWeight: 500}}>
                 ELAPSED
               </Typography>
             </BaseCell>
             <BaseCell align="right">
-              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
+              <Typography sx={{color: colors.gray, fontSize: '0.75rem', fontWeight: 500}}>
                 ESTIMATE
               </Typography>
             </BaseCell>
             <BaseCell align="right">
-              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
+              <Typography sx={{color: colors.gray, fontSize: '0.75rem', fontWeight: 500}}>
                 STARTED
               </Typography>
             </BaseCell>
             <BaseCell align="right">
-              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
+              <Typography sx={{color: colors.gray, fontSize: '0.75rem', fontWeight: 500}}>
                 DIFFERENCE
               </Typography>
             </BaseCell>
             <BaseCell align="right">
-              <Typography sx={{ color: colors.gray, fontSize: '0.75rem', fontWeight: 500 }}>
+              <Typography sx={{color: colors.gray, fontSize: '0.75rem', fontWeight: 500}}>
               </Typography>
             </BaseCell>
           </TableRow>
@@ -185,22 +185,22 @@ const CompletedSplits = ({
                     </Typography>
                   )}
                 </BaseCell>
-               <BaseCell align="right">
-<IconButton
-  onClick={() => onDeleteSplit(split)}
-  size="small"
-  sx={{
-    color: colors.gray,
-    transition: 'all 0.2s ease',
-    '&:hover': {
-      color: colors.softRed,
-      backgroundColor: 'rgba(255, 107, 107, 0.1)',
-    }
-  }}
->
-  <DeleteIcon />
-</IconButton>
-</BaseCell>
+                <BaseCell align="right">
+                  <IconButton
+                    onClick={() => onDeleteSplit(split)}
+                    size="small"
+                    sx={{
+                      color: colors.gray,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        color: colors.softRed,
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                      }
+                    }}
+                  >
+                    <DeleteIcon/>
+                  </IconButton>
+                </BaseCell>
               </TableRow>
             );
           })}

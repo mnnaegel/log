@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {Box, Stack, Typography} from "@mui/material";
 import dayjs from 'dayjs';
 import SplitTimer from './SplitTimer';
 import CompletedSplits from './CompletedSplits';
-import { Split, SplitState } from "./types";
+import {Split, SplitState} from "./types";
 import SplitInput from "./SplitInput";
 import AuthButton from "./AuthModal";
 import DateFilter from './DateFilter';
 import NotesModal from './NotesModal';
 import {createSplit, deleteSplit, getSplitsForDate, updateSplit} from './api';
-import { Session } from "@supabase/supabase-js";
+import {Session} from "@supabase/supabase-js";
 import getSupabaseClient from "./getSupabaseClient";
 import {colors} from "./theme.ts";
 
@@ -24,35 +24,35 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getSupabaseClient().auth.getSession().then(({ data: { session } }) => {
+    getSupabaseClient().auth.getSession().then(({data: {session}}) => {
       setSession(session);
     });
   }, []);
 
-  useEffect(() => {
-    async function fetchSplits() {
-      if (!session) {
-        setCompletedSplits([]);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-      try {
-        const startOfDay = selectedDate.startOf('day').valueOf();
-        const fetchedSplits = await getSplitsForDate(new Date(startOfDay));
-        setCompletedSplits(fetchedSplits);
-      } catch (err) {
-        console.error('Error fetching splits:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch splits');
-        setCompletedSplits([]);
-      } finally {
-        setLoading(false);
-      }
+  const fetchSplits = useCallback(async () => {
+    if (!session) {
+      setCompletedSplits([]);
+      return;
     }
 
-    void fetchSplits();
+    setLoading(true);
+    setError(null);
+    try {
+      const startOfDay = selectedDate.startOf('day').valueOf();
+      const fetchedSplits = await getSplitsForDate(new Date(startOfDay));
+      setCompletedSplits(fetchedSplits);
+    } catch (err) {
+      console.error('Error fetching splits:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch splits');
+      setCompletedSplits([]);
+    } finally {
+      setLoading(false);
+    }
   }, [selectedDate, session]);
+
+  useEffect(() => {
+    void fetchSplits();
+  }, [fetchSplits, selectedDate, session]);
 
   const handleCreateSplit = async (name: string, estimatedMinutes: number) => {
     const newSplit = await createSplit({
@@ -85,7 +85,7 @@ function App() {
 
   const handleUpdateCompletedSplitName = async (split: Split, newName: string) => {
     try {
-      const updatedSplit = await updateSplit(split.id, { ...split, name: newName });
+      const updatedSplit = await updateSplit(split.id, {...split, name: newName});
       setCompletedSplits(currentSplits =>
         currentSplits.map(s =>
           s.id === split.id ? updatedSplit : split
@@ -96,30 +96,23 @@ function App() {
     }
   };
 
-  const updateSplitEndTime = async (split: Split, newEndTime: number) => {
-    try {
-      const updatedSplit = await updateSplit(split.id, { ...split, endTime: newEndTime });
-      setCompletedSplits(currentSplits =>
-        currentSplits.map(s =>
-          s.id === split.id ? updatedSplit : split
-        )
-      );
-    } catch (err) {
-      console.error('Failed to update split end time:', err);
-    }
-  }
-
-  const handleCompleteSplit = () => {
+  const handleCompleteSplit = async () => {
     if (currentSplit) {
-      const completedSplit = {
-        ...currentSplit,
-        endTime: Date.now(),
-        state: SplitState.COMPLETED
-      };
+      // update the split with the new end time
+      try {
+        await updateSplit(currentSplit.id, {
+          ...currentSplit,
+          endTime: Date.now(),
+          state: SplitState.COMPLETED
+        });
+      } catch (err) {
+        console.error('Failed to update split end time:', err);
+      }
 
-      void updateSplitEndTime(currentSplit, Date.now());
-      setCompletedSplits([completedSplit, ...completedSplits]);
       setCurrentSplit(null);
+
+      //refresh list
+      void fetchSplits()
     }
   };
 
@@ -145,8 +138,8 @@ function App() {
       spacing={6}
       justifyContent="space-between"
     >
-      <Box sx={{ position: 'absolute', top: '1rem', right: '1rem' }}>
-        <AuthButton />
+      <Box sx={{position: 'absolute', top: '1rem', right: '1rem'}}>
+        <AuthButton/>
       </Box>
 
       {(
@@ -169,7 +162,7 @@ function App() {
               direction="row"
               spacing={2}
               alignItems="center"
-              sx={{ mb: 3 }}
+              sx={{mb: 3}}
             >
               <DateFilter
                 selectedDate={selectedDate}
@@ -187,7 +180,7 @@ function App() {
                 error={error}
               />
             ) : (
-              <Typography sx={{ color: colors.gray, mt: 4 }}>
+              <Typography sx={{color: colors.gray, mt: 4}}>
                 Please sign in to view your splits
               </Typography>
             )}
