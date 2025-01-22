@@ -12,6 +12,7 @@ import {createSplit, deleteSplit, getSplitsForDate, updateSplit} from './api';
 import {Session} from "@supabase/supabase-js";
 import getSupabaseClient from "./getSupabaseClient";
 import {colors} from "./theme.ts";
+import WorkSummary from "./WorkSummary.tsx";
 
 function App() {
   const [currentSplit, setCurrentSplit] = useState<Split | null>(null);
@@ -171,6 +172,7 @@ function App() {
                 onDateChange={(date) => date && setSelectedDate(date)}
                 onNotesOpen={() => setIsNotesOpen(true)}
               />
+              <WorkSummary splits={completedSplits} selectedDate={selectedDate}/>
             </Stack>
 
             {session ? (
