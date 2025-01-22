@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Stack, Typography } from '@mui/material';
 import { Split, SplitState } from './types';
 import { formatDuration, minutesToMs } from './utils';
