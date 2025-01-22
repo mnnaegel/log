@@ -29,7 +29,7 @@ function App() {
     });
   }, []);
 
-  const fetchSplits = useCallback(async () => {
+  const fetchCompletedSplits = useCallback(async () => {
     if (!session) {
       setCompletedSplits([]);
       return;
@@ -39,7 +39,7 @@ function App() {
     setError(null);
     try {
       const startOfDay = selectedDate.startOf('day').valueOf();
-      const fetchedSplits = await getSplitsForDate(new Date(startOfDay));
+      const fetchedSplits = (await getSplitsForDate(new Date(startOfDay))).filter(split => split.state !== SplitState.IN_PROGRESS);
       setCompletedSplits(fetchedSplits);
     } catch (err) {
       console.error('Error fetching splits:', err);
@@ -51,8 +51,8 @@ function App() {
   }, [selectedDate, session]);
 
   useEffect(() => {
-    void fetchSplits();
-  }, [fetchSplits, selectedDate, session]);
+    void fetchCompletedSplits();
+  }, [fetchCompletedSplits, selectedDate, session]);
 
   const handleCreateSplit = async (name: string, estimatedMinutes: number) => {
     const newSplit = await createSplit({
@@ -112,21 +112,23 @@ function App() {
       setCurrentSplit(null);
 
       //refresh list
-      void fetchSplits()
+      void fetchCompletedSplits()
     }
   };
 
-  const handleAbandonSplit = () => {
+  const handleAbandonSplit = async () => {
     if (currentSplit) {
       const abandonedSplit = {
         ...currentSplit,
         endTime: Date.now(),
         state: SplitState.ABANDONED
       };
-      if (dayjs(abandonedSplit.startTime).isSame(selectedDate, 'day')) {
-        setCompletedSplits([abandonedSplit, ...completedSplits]);
-      }
       setCurrentSplit(null);
+
+      await updateSplit(abandonedSplit.id, abandonedSplit);
+
+      // refresh list
+      void fetchCompletedSplits();
     }
   };
 

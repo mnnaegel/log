@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Stack, IconButton } from "@mui/material";
-import { Split } from "./types";
-import { colors } from "./theme";
-import { formatDuration } from "./utils";
+import {useState, useEffect} from 'react';
+import {Stack, IconButton} from "@mui/material";
+import {Split} from "./types";
+import {colors} from "./theme";
+import {formatDuration} from "./utils";
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import TimeDisplay from './TimeDisplay';
@@ -15,35 +15,54 @@ type SplitTimerProps = {
   onUpdateName: (newName: string) => void;
 };
 
-const SplitTimer = ({ currentSplit, onComplete, onAbandon, onUpdateName }: SplitTimerProps) => {
+const SplitTimer = ({currentSplit, onComplete, onAbandon, onUpdateName}: SplitTimerProps) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       if (currentSplit && !currentSplit.endTime) {
-        setElapsedTime(Date.now() - currentSplit.startTime);
+        const newTime = Date.now() - currentSplit.startTime;
+        setElapsedTime(newTime);
+
+        if (newTime / (1000 * 60) > currentSplit.pessimisticEstimate) {
+          onAbandon();
+          clearInterval(timer);
+        }
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentSplit]);
+  }, [currentSplit, onAbandon]);
 
   const getTimeColor = () => {
     const elapsedMinutes = elapsedTime / (1000 * 60);
-    if (elapsedMinutes > currentSplit.pessimisticEstimate) {
+    const quarterEstimate = currentSplit.pessimisticEstimate / 4;
+    const halfEstimate = currentSplit.pessimisticEstimate / 2;
+    const threeQuarterEstimate = (currentSplit.pessimisticEstimate * 3) / 4;
+
+    if (elapsedMinutes >= quarterEstimate && elapsedMinutes <= halfEstimate) {
+      return colors.softYellow;
+    }
+
+    if (elapsedMinutes >= halfEstimate && elapsedMinutes <= threeQuarterEstimate) {
+      return colors.yellow;
+    }
+
+    if (elapsedMinutes >= threeQuarterEstimate) {
       return colors.softRed;
     }
+
     return colors.gray;
   };
 
   return (
-    <Stack 
+    <Stack
       spacing={3}
       alignItems="center"
     >
-      <Stack 
+      <Stack
         direction="column"
-        spacing={2} 
+        spacing={2}
         alignItems="center"
       >
         <EditableText
@@ -70,7 +89,7 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon, onUpdateName }: Split
             }
           }}
         >
-          <CheckIcon />
+          <CheckIcon/>
         </IconButton>
         <IconButton
           onClick={onAbandon}
@@ -81,7 +100,7 @@ const SplitTimer = ({ currentSplit, onComplete, onAbandon, onUpdateName }: Split
             }
           }}
         >
-          <ClearIcon />
+          <ClearIcon/>
         </IconButton>
       </Stack>
     </Stack>
